@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h3>Upload Foto untuk Issue</h3>
+    <input type="file" id="fileInput" accept="image/*"><br><br>
+    <button onclick="upload()">Upload Foto</button>
+    <p id="status"></p>
+
+    <script>
+      function upload() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        if (!file) {
+          alert("Pilih file terlebih dahulu!");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const dataUrl = e.target.result;
+          google.script.run.withSuccessHandler(function () {
+            document.getElementById("status").innerText = "✅ Foto berhasil diupload!";
+          }).uploadIssuePhoto(dataUrl, file.name);
+        };
+        reader.readAsDataURL(file);
+      }
+    </script>
+  </body>
+</html>
