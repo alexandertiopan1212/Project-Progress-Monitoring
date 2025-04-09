@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head><base target="_top"></head>
+  <body>
+    <h3>Pilih Aktivitas Hari Ini</h3>
+    <div id="listContainer" style="max-height:300px;overflow:auto;border:1px solid #ccc;padding:10px;"></div>
+    <br>
+    <button onclick="submit()">Tambahkan ke Laporan</button>
+
+    <script>
+      const list = JSON.parse(localStorage.getItem("activityOptions"));
+      const container = document.getElementById("listContainer");
+
+      list.forEach(item => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <label><input type="checkbox" value="${item}"> ${item}</label>
+        `;
+        container.appendChild(div);
+      });
+
+      function submit() {
+        const selected = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
+          .map(cb => cb.value);
+
+        if (selected.length === 0) {
+          alert("Pilih minimal satu aktivitas.");
+          return;
+        }
+
+        google.script.run.withSuccessHandler(msg => {
+          alert(msg);
+          google.script.host.close();
+        }).insertSelectedActivitiesToSheet(selected);
+      }
+    </script>
+  </body>
+</html>
