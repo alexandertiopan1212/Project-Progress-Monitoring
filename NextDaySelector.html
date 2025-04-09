@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      #listContainer {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Pilih Next Day Activities</h3>
+    <div id="listContainer">Loading...</div>
+    <br>
+    <button onclick="submit()">Tambahkan ke Laporan</button>
+
+    <script>
+      // Ambil list dari server
+      google.script.run.withSuccessHandler(function(activityList) {
+        const container = document.getElementById("listContainer");
+        container.innerHTML = "";
+
+        activityList.forEach(item => {
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <label><input type="checkbox" value="${item}"> ${item}</label>
+          `;
+          container.appendChild(div);
+        });
+      }).getNextDayActivityListFromMaster();
+
+      // Submit pilihan ke spreadsheet
+      function submit() {
+        const selected = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
+          .map(cb => cb.value);
+
+        if (selected.length === 0) {
+          alert("Pilih minimal satu aktivitas.");
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(function(msg) {
+            alert(msg);
+            google.script.host.close();
+          })
+          .insertNextSelectedActivitiesToSheet(selected);
+      }
+    </script>
+  </body>
+</html>
